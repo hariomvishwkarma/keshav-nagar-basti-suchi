@@ -195,6 +195,8 @@ async function loadSheet() {
     const changed = JSON.stringify(people) !== JSON.stringify(DATA);
     DATA = people;
     status.textContent = 'लाइव शीट से अपडेट · ' + new Date().toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit' });
+    if (people.length > 10 && new Set(people.map(p => p.mohalla)).size === 1)
+      status.textContent += ' · ⚠ शीट से सिर्फ़ एक ही मोहल्ले की एंट्री आ रही हैं (शीट में Filter लगा हो तो हटाइए)';
     if (changed) render(true);
     if (await fixEnglishNames(people)) render(true);   // नए अंग्रेज़ी नाम हों तो हिंदी करके दोबारा दिखाएँ
     try { localStorage.setItem(CACHE_KEY, JSON.stringify(people)); } catch (e) {}
