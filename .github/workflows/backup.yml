@@ -1,0 +1,31 @@
+name: Sheet backup
+
+on:
+  schedule:
+    - cron: '17 * * * *'      # har ghante
+  workflow_dispatch:           # Actions tab se haath se bhi chala sakte hain
+
+permissions:
+  contents: write
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Sheet se backup lo
+        run: node scripts/backup.mjs
+      - name: Badlav ho to commit karo
+        run: |
+          git config user.name "backup-bot"
+          git config user.email "backup-bot@users.noreply.github.com"
+          git add backup
+          if git diff --cached --quiet; then
+            echo "koi badlav nahi"
+          else
+            git commit -m "Sheet backup update"
+            git push
+          fi

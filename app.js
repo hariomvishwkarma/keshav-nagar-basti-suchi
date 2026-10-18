@@ -1,5 +1,5 @@
 const SHEET_ID = '1qajWuycAZywGNo9H3h0sARakBwbH7i5oE3BpW0knY0A';
-const SHEET_NAME = 'Form Responses 1';
+const SHEET_NAME = 'Website';   // 'Website' टैब न हो तो Google अपने आप पहला टैब (Form Responses 1) दे देता है
 const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
 const REFRESH_MS = 5 * 60 * 1000;
 const CACHE_KEY = 'rss-suchi-cache-v2';
@@ -183,27 +183,77 @@ async function fixEnglishNames(people) {
   return applyTranslit(people);
 }
 
+/* ---------- बैकअप (GitHub में हर घंटे जमा होता है: backup/rows.json) ---------- */
+const BK_ON = 'rss-backup-on';
+const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+
+function backupUrls() {
+  const m = location.hostname.match(/^(.+)\.github\.io$/), repo = location.pathname.split('/')[1];
+  return [...(m && repo ? [`https://raw.githubusercontent.com/${m[1]}/${repo}/main/backup/rows.json`] : []), 'backup/rows.json'];
+}
+async function loadBackup() {
+  for (const u of backupUrls()) {
+    try {
+      const res = await fetch(u, { cache: 'no-store' });
+      if (!res.ok) continue;
+      const j = await res.json();
+      return Object.entries(j.rows || {}).map(([key, e]) => ({ key, v: e.v }));
+    } catch (e) {}
+  }
+  return [];
+}
+const liveKey = c => (c[0] && (c[0].f || c[0].v)) ? String(c[0].f || c[0].v) : `${cellText(c[1]).trim()}|${cellText(c[4])}`;
+const bkRow = b => ({ c: b.v.map(v => ({ v })) });
+
 async function loadSheet() {
   const status = $('status');
+  let live = null;
   try {
     const res = await fetch(SHEET_URL, { cache: 'no-store' });
     if (!res.ok) throw new Error(res.status);
     const txt = await res.text();
-    const people = rowsToPeople(JSON.parse(txt.slice(txt.indexOf('{'), txt.lastIndexOf('}') + 1)).table.rows);
-    if (!people.length) throw new Error('empty');
-    applyTranslit(people);                       // पहले से याद किए नाम तुरंत
-    const changed = JSON.stringify(people) !== JSON.stringify(DATA);
-    DATA = people;
-    status.textContent = 'लाइव शीट से अपडेट · ' + new Date().toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit' });
-    if (people.length > 10 && new Set(people.map(p => p.mohalla)).size === 1)
-      status.textContent += ' · ⚠ शीट से सिर्फ़ एक ही मोहल्ले की एंट्री आ रही हैं (शीट में Filter लगा हो तो हटाइए)';
-    if (changed) render(true);
-    if (await fixEnglishNames(people)) render(true);   // नए अंग्रेज़ी नाम हों तो हिंदी करके दोबारा दिखाएँ
-    try { localStorage.setItem(CACHE_KEY, JSON.stringify(people)); } catch (e) {}
-  } catch (e) {
+    live = JSON.parse(txt.slice(txt.indexOf('{'), txt.lastIndexOf('}') + 1)).table.rows.filter(r => r.c && r.c[1] && r.c[1].v);
+    if (!live.length) live = null;
+  } catch (e) { live = null; }
+  const bk = await loadBackup();
+
+  let rows, note, time = new Date().toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit' });
+  if (live) {
+    const keys = new Set(live.map(r => liveKey(r.c)));
+    const missing = bk.filter(b => !keys.has(b.key));
+    const on = lsGet(BK_ON) === '1';
+    rows = on ? [...live, ...missing.map(bkRow)] : live;
+    note = 'लाइव शीट से अपडेट · ' + time;
+    if (missing.length) note += on
+      ? ` · बैकअप की ${missing.length} एंट्री भी जुड़ी हैं <a href="#" id="bkToggle">(हटाएँ)</a>`
+      : ` · ⚠ बैकअप में ${missing.length} एंट्री हैं जो शीट में नहीं मिलीं <a href="#" id="bkToggle">(बैकअप से जोड़ें)</a>`;
+  } else if (bk.length) {
+    rows = bk.map(bkRow);
+    note = '⚠ शीट नहीं मिली – बैकअप से सूची दिखाई जा रही है';
+  } else {
     status.textContent = 'ऑफ़लाइन – पिछली सेव सूची दिखाई जा रही है';
+    return;
   }
+
+  const people = rowsToPeople(rows);
+  if (!people.length) { status.textContent = 'ऑफ़लाइन – पिछली सेव सूची दिखाई जा रही है'; return; }
+  applyTranslit(people);                           // पहले से याद किए नाम तुरंत
+  const changed = JSON.stringify(people) !== JSON.stringify(DATA);
+  DATA = people;
+  if (people.length > 10 && new Set(people.map(p => p.mohalla)).size === 1)
+    note += ' · ⚠ सिर्फ़ एक ही मोहल्ले की एंट्री आ रही हैं (शीट में Filter / छुपी पंक्तियाँ हों तो खोलिए)';
+  status.innerHTML = note;
+  if (changed) render(true);
+  if (await fixEnglishNames(people)) render(true);   // नए अंग्रेज़ी नाम हों तो हिंदी करके दोबारा दिखाएँ
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify(people)); } catch (e) {}
 }
+
+$('status').addEventListener('click', e => {
+  if (e.target.id !== 'bkToggle') return;
+  e.preventDefault();
+  try { localStorage.setItem(BK_ON, lsGet(BK_ON) === '1' ? '0' : '1'); } catch (err) {}
+  loadSheet();
+});
 
 /* ---------- क्रम (sorting): मोहल्ला → गली नंबर → मकान नंबर ---------- */
 const isNum = g => /^\d+$/.test(g);
