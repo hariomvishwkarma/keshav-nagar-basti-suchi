@@ -40,3 +40,46 @@ dt{color:var(--muted)}
 dd{margin:0;word-break:break-word}
 .empty-msg{padding:30px;text-align:center;color:var(--muted)}
 .status{margin:0 0 10px;font-size:.78rem;color:var(--muted)}
+
+/* क्रम / शीर्षक */
+.card h3 .no{color:var(--saffron-d);font-weight:600;font-size:.9rem}
+.grp{grid-column:1/-1;margin:10px 0 0}
+.grp.m{font-size:1.2rem;background:linear-gradient(135deg,var(--saffron),var(--saffron-d));color:#fff;padding:8px 14px;border-radius:10px}
+.grp.g{font-size:1rem;color:var(--saffron-d);border-bottom:2px solid var(--line);padding-bottom:4px}
+.grp small{font-weight:400;opacity:.85}
+
+/* डाउनलोड / प्रिंट */
+.listhead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin:6px 0 10px}
+.listhead .list-title{margin:0}
+.tools{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:.85rem}
+.tools[hidden]{display:none}
+.tools button{background:var(--saffron);color:#fff;border:0;border-radius:8px;padding:8px 12px;font:inherit;font-weight:700;cursor:pointer}
+.tools button:hover{background:var(--saffron-d)}
+.tools label{color:var(--muted)}
+.tools select{font:inherit;padding:6px;border:1px solid var(--line);border-radius:8px;background:#fff}
+#printArea{display:none}
+
+@media print{
+  body{background:#fff;color:#000}
+  .top,main{display:none!important}
+  #printArea{display:block}
+  .ph{text-align:center;margin-bottom:8px}
+  .pt{font-size:16pt;font-weight:700;color:#b84d05}
+  .ps{font-size:10pt;color:#333}
+  #printArea table{width:100%;border-collapse:collapse;font-size:9.5pt}
+  #printArea th,#printArea td{border:1px solid #777;padding:3px 5px;text-align:left;vertical-align:top}
+  #printArea th{background:#e8650c;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #printArea thead{display:table-header-group}
+  #printArea tr{page-break-inside:avoid}
+  #printArea tr.gm td{background:#e8650c;color:#fff;font-weight:700;font-size:11pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #printArea tr.gg td{background:#ffe9d3;font-weight:700;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #printArea tbody tr:nth-child(even):not(.gm):not(.gg) td{background:#fafafa}
+}
+
+/* दो पंक्तियाँ: मोहल्ले (ऊपर) और गली (नीचे) */
+.blocks:empty{display:none;margin:0}
+.blocks.gali{margin-top:-4px;padding:10px;border:2px dashed var(--line);border-radius:14px;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
+.blocks.gali .block{min-height:58px;padding:8px 6px;font-size:.95rem;border-radius:10px}
+.block.active{box-shadow:0 0 0 3px rgba(232,101,12,.25)}
+#blocks{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:12px}
+#blocks .block{min-height:62px;padding:8px 6px;font-size:.95rem;border-radius:12px}

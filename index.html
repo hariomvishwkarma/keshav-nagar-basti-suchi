@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>कुशवाह नगर बस्ती – स्वयंसेवक सूची</title>
 <link rel="stylesheet" href="style.css">
+<style id="pageStyle">@page{size:A4 landscape;margin:10mm}</style>
 </head>
 <body>
 <header class="top">
@@ -22,11 +23,29 @@
   <nav id="crumbs" class="crumbs"></nav>
   <p id="status" class="status"></p>
   <section id="blocks" class="blocks"></section>
-  <h2 id="listTitle" class="list-title"></h2>
+  <section id="galiBlocks" class="blocks gali"></section>
+
+  <div class="listhead">
+    <h2 id="listTitle" class="list-title"></h2>
+    <div id="tools" class="tools" hidden>
+      <button id="btnXls" type="button">⬇️ Excel</button>
+      <button id="btnPdf" type="button">📄 PDF / प्रिंट (A4)</button>
+      <label>कागज़
+        <select id="optOrient"><option value="landscape">लेटा (Landscape)</option><option value="portrait">खड़ा (Portrait)</option></select>
+      </label>
+      <label>जानकारी
+        <select id="optCols"><option value="full">पूरी</option><option value="short">संक्षिप्त (नाम, पता, मोबाइल)</option></select>
+      </label>
+    </div>
+  </div>
   <section id="list" class="list"></section>
 </main>
 
+<div id="printArea"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="data.js"></script>
+<script src="corrections.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
