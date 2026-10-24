@@ -285,13 +285,14 @@ function card(p, n) {
   const call = p.phone
     ? `<a class="call" href="tel:+91${p.phone}">📞 ${p.phone}</a>`
     : `<div class="call none">नंबर उपलब्ध नहीं</div>`;
+  const select = `<label class="person-select"><input class="person-checkbox" type="checkbox" data-person="${esc(personKey(p))}" ${SELECTED.has(personKey(p)) ? 'checked' : ''} ${p.phone ? '' : 'disabled'}><span>संदेश के लिए चुनें</span></label>`;
   const rows = [
     ['पता', p.pata], ['जन्म दिनांक', p.dob], ['शिक्षा / व्यवसाय', p.kaam],
     ['व्यवसाय समय', p.samay], ['गणवेश', p.ganvesh], ['संघ प्रवेश वर्ष', p.varsh],
     ['संघ शिक्षण', p.shikshan],
   ].filter(r => r[1]).map(r => `<dt>${r[0]}</dt><dd>${esc(r[1])}</dd>`).join('');
   return `<article class="card">
-    <h3><span class="no">${n}.</span> ${esc(p.naam)}</h3>
+    <div class="person-heading"><h3><span class="no">${n}.</span> ${esc(p.naam)}</h3>${select}</div>
     <span class="tag">${esc(p.mohalla)}</span><span class="tag">${esc(galiLabel(p.gali))}</span>
     ${call}<dl>${rows}</dl></article>`;
 }
@@ -321,6 +322,25 @@ function mohBlocks(active) {
 }
 
 let VIEW = { people: [], heading: '', file: 'suchi' };
+const SELECTED = new Set();
+const personKey = p => [p.phone, p.naam, p.mohalla, p.gali, p.pata].join('|');
+let OUTREACH = { type: '', people: [], index: 0 };
+
+function resetOutreach() {
+  OUTREACH = { type: '', people: [], index: 0 };
+  $('outreachNext').hidden = true;
+}
+
+function updateOutreach() {
+  const selected = DATA.filter(p => p.phone && SELECTED.has(personKey(p)));
+  const visible = VIEW.people.filter(p => p.phone);
+  const visibleSelected = visible.filter(p => SELECTED.has(personKey(p))).length;
+  $('selectedCount').textContent = `${selected.length} चुने`;
+  $('selectVisible').checked = visible.length > 0 && visibleSelected === visible.length;
+  $('selectVisible').indeterminate = visibleSelected > 0 && visibleSelected < visible.length;
+  $('selectVisible').disabled = !visible.length;
+  $('startWhatsapp').disabled = $('startSms').disabled = $('startCall').disabled = !selected.length;
+}
 
 function render(keepScroll) {
   const parts = decodeURIComponent(location.hash.replace(/^#\/?/, '')).split('/').filter(Boolean);
@@ -354,8 +374,45 @@ function render(keepScroll) {
   $('list').innerHTML = people.length ? groupedCards(people, showM, showG)
     : '<div class="empty-msg">कोई स्वयंसेवक नहीं मिला</div>';
   $('tools').hidden = !people.length;
+  $('outreach').hidden = !people.length;
   VIEW = { people, heading, file: file.replace(/[\s\\/:*?"<>|]+/g, '_') };
+  updateOutreach();
   if (!q && !keepScroll) window.scrollTo(0, 0);
+}
+
+/* ---------- चुने हुए लोगों से एक-एक करके संपर्क ---------- */
+const outreachLabels = { whatsapp: 'WhatsApp', sms: 'SMS', call: 'कॉल' };
+
+function launchOutreach(type) {
+  resetOutreach();
+  const people = DATA.filter(p => p.phone && SELECTED.has(personKey(p)));
+  if (!people.length) return;
+  if (type !== 'call' && !$('outreachMessage').value.trim()) {
+    $('outreachMessage').focus();
+    $('outreachStatus').textContent = 'पहले संदेश लिखें।';
+    return;
+  }
+  OUTREACH = { type, people, index: 0 };
+  openNextOutreach();
+}
+
+function openNextOutreach() {
+  const { type, people, index } = OUTREACH;
+  if (index >= people.length) return;
+  const person = people[index];
+  const number = '+91' + person.phone;
+  const message = encodeURIComponent($('outreachMessage').value.trim());
+  const urls = {
+    whatsapp: `https://wa.me/${number.slice(1)}?text=${message}`,
+    sms: `sms:${number}?body=${message}`,
+    call: `tel:${number}`,
+  };
+  window.open(urls[type], '_blank');
+  OUTREACH.index++;
+  $('outreachStatus').textContent = `${person.naam} (${index + 1}/${people.length}) के लिए ${outreachLabels[type]} खुला। वहाँ भेजने/कॉल करने के बाद यहाँ लौटकर अगला चुनें।`;
+  const next = $('outreachNext');
+  next.hidden = OUTREACH.index >= people.length;
+  next.textContent = `अगला ${outreachLabels[type]} (${OUTREACH.index + 1}/${people.length})`;
 }
 
 /* ---------- Excel डाउनलोड ---------- */
@@ -427,6 +484,30 @@ window.addEventListener('hashchange', () => { $('search').value = ''; render(); 
 $('search').addEventListener('input', () => render());
 $('btnXls').addEventListener('click', downloadExcel);
 $('btnPdf').addEventListener('click', printPdf);
+$('list').addEventListener('change', e => {
+  if (!e.target.classList.contains('person-checkbox')) return;
+  resetOutreach();
+  if (e.target.checked) SELECTED.add(e.target.dataset.person);
+  else SELECTED.delete(e.target.dataset.person);
+  updateOutreach();
+});
+$('selectVisible').addEventListener('change', e => {
+  resetOutreach();
+  VIEW.people.filter(p => p.phone).forEach(p => {
+    if (e.target.checked) SELECTED.add(personKey(p));
+    else SELECTED.delete(personKey(p));
+  });
+  render(true);
+});
+$('clearSelection').addEventListener('click', () => {
+  resetOutreach();
+  SELECTED.clear();
+  render(true);
+});
+$('startWhatsapp').addEventListener('click', () => launchOutreach('whatsapp'));
+$('startSms').addEventListener('click', () => launchOutreach('sms'));
+$('startCall').addEventListener('click', () => launchOutreach('call'));
+$('outreachNext').addEventListener('click', openNextOutreach);
 render();
 loadSheet();
 setInterval(loadSheet, REFRESH_MS);

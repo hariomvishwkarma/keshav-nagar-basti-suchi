@@ -38,6 +38,22 @@
       </label>
     </div>
   </div>
+  <section id="outreach" class="outreach" hidden>
+    <div class="outreach-head">
+      <label class="select-all"><input id="selectVisible" type="checkbox"> इस सूची के सभी नंबर चुनें</label>
+      <span id="selectedCount" class="selected-count">0 चुने</span>
+      <button id="clearSelection" type="button" class="quiet-button">चयन हटाएँ</button>
+    </div>
+    <label class="message-label" for="outreachMessage">संदेश</label>
+    <textarea id="outreachMessage" rows="3" placeholder="यहाँ संदेश लिखें…"></textarea>
+    <div class="outreach-actions">
+      <button id="startWhatsapp" type="button">WhatsApp शुरू करें</button>
+      <button id="startSms" type="button">SMS शुरू करें</button>
+      <button id="startCall" type="button">कॉल शुरू करें</button>
+      <button id="outreachNext" type="button" hidden></button>
+    </div>
+    <p id="outreachStatus" class="outreach-status" aria-live="polite">संदेश/कॉल हर नंबर पर अलग से खुलेगा; भेजने या कॉल करने की पुष्टि आप करेंगे।</p>
+  </section>
   <section id="list" class="list"></section>
 </main>
 

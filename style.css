@@ -41,6 +41,24 @@ dd{margin:0;word-break:break-word}
 .empty-msg{padding:30px;text-align:center;color:var(--muted)}
 .status{margin:0 0 10px;font-size:.78rem;color:var(--muted)}
 
+.outreach{margin:0 0 14px;padding:12px;background:#fff;border:1px solid var(--line);border-left:4px solid var(--green);border-radius:8px}
+.outreach[hidden]{display:none}
+.outreach-head,.outreach-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.outreach-head{margin-bottom:10px}
+.select-all,.person-select{display:inline-flex;align-items:center;gap:6px;font-size:.88rem;font-weight:600}
+.selected-count{color:var(--muted);font-size:.85rem}
+.outreach button{border:0;border-radius:6px;padding:8px 11px;background:var(--green);color:#fff;font:inherit;font-weight:700;cursor:pointer}
+.outreach button:disabled{opacity:.45;cursor:not-allowed}
+.outreach .quiet-button{padding:5px 8px;background:#eef2ed;color:var(--ink);font-size:.82rem}
+.message-label{display:block;margin-bottom:3px;color:var(--muted);font-size:.82rem}
+#outreachMessage{display:block;width:100%;min-height:70px;margin-bottom:8px;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font:inherit;resize:vertical}
+.outreach-status{margin:8px 0 0;color:var(--muted);font-size:.82rem}
+.person-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.person-heading h3{min-width:0}
+.person-select{flex-shrink:0;font-size:.75rem;font-weight:500;color:var(--muted)}
+.person-checkbox,.select-all input{width:17px;height:17px;accent-color:var(--green)}
+.person-select input:disabled{opacity:.45}
+
 /* क्रम / शीर्षक */
 .card h3 .no{color:var(--saffron-d);font-weight:600;font-size:.9rem}
 .grp{grid-column:1/-1;margin:10px 0 0}
