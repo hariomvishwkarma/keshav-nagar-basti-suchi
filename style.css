@@ -101,3 +101,7 @@ dd{margin:0;word-break:break-word}
 .block.active{box-shadow:0 0 0 3px rgba(232,101,12,.25)}
 #blocks{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:12px}
 #blocks .block{min-height:62px;padding:8px 6px;font-size:.95rem;border-radius:12px}
+
+section#outreach {
+    display: none;
+}
