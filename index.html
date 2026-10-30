@@ -9,19 +9,23 @@
 </head>
 <body>
 <header class="top">
-  <a href="#/" class="brand">
-    <span class="flag">🚩</span>
-    <span>
-      <h1>कुशवाह नगर बस्ती</h1>
-      <small>राष्ट्रीय स्वयंसेवक संघ · स्वयंसेवक सूची</small>
-    </span>
-  </a>
+  <div class="toprow">
+    <a href="#/" class="brand">
+      <span class="flag">🚩</span>
+      <span>
+        <h1>कुशवाह नगर बस्ती</h1>
+        <small>राष्ट्रीय स्वयंसेवक संघ · स्वयंसेवक सूची</small>
+      </span>
+    </a>
+    <button id="menuBtn" type="button" class="menu-btn" aria-label="मेनू खोलें" aria-expanded="false">☰<span id="menuBadge" class="menu-badge" hidden></span></button>
+  </div>
   <input id="search" type="search" placeholder="🔍 नाम, नंबर या पता खोजें…" autocomplete="off">
 </header>
 
 <main>
   <nav id="crumbs" class="crumbs"></nav>
   <p id="status" class="status"></p>
+  <section id="bdayBar" class="bday-bar" hidden></section>
   <section id="blocks" class="blocks"></section>
   <section id="galiBlocks" class="blocks gali"></section>
 
@@ -38,24 +42,47 @@
       </label>
     </div>
   </div>
-  <section id="outreach" class="outreach" hidden>
-    <div class="outreach-head">
-      <label class="select-all"><input id="selectVisible" type="checkbox"> इस सूची के सभी नंबर चुनें</label>
-      <span id="selectedCount" class="selected-count">0 चुने</span>
-      <button id="clearSelection" type="button" class="quiet-button">चयन हटाएँ</button>
-    </div>
-    <label class="message-label" for="outreachMessage">संदेश</label>
-    <textarea id="outreachMessage" rows="3" placeholder="यहाँ संदेश लिखें…"></textarea>
-    <div class="outreach-actions">
-      <button id="startWhatsapp" type="button">WhatsApp शुरू करें</button>
-      <button id="startSms" type="button">SMS शुरू करें</button>
-      <button id="startCall" type="button">कॉल शुरू करें</button>
-      <button id="outreachNext" type="button" hidden></button>
-    </div>
-    <p id="outreachStatus" class="outreach-status" aria-live="polite">संदेश/कॉल हर नंबर पर अलग से खुलेगा; भेजने या कॉल करने की पुष्टि आप करेंगे।</p>
-  </section>
   <section id="list" class="list"></section>
 </main>
+
+<div id="menu" class="drawer" hidden>
+  <nav class="drawer-panel" aria-label="मेनू">
+    <div class="drawer-head"><b>मेनू</b><button id="menuClose" type="button" class="modal-x" aria-label="बंद करें">✕</button></div>
+    <button id="bdayBtn" type="button" class="menu-item">🎂 जन्मदिन</button>
+    <a class="menu-item" href="https://docs.google.com/forms/d/e/1FAIpQLSeMpHCyWqaOnB7xeV0sb9G69UgcSbN5BV9__fpzvuqAGayVsg/viewform?usp=header" target="_blank" rel="noopener">📝 नया स्वयंसेवक जोड़ें (फ़ॉर्म)</a>
+  <details id="outreach" class="outreach" hidden>
+      <summary>📣 संदेश भेजें (WhatsApp / SMS / कॉल) <span id="selectedBadge" class="selected-count">0 चुने</span></summary>
+      <div class="outreach-head">
+        <label class="select-all"><input id="selectVisible" type="checkbox"> इस सूची के सभी नंबर चुनें</label>
+        <span id="selectedCount" class="selected-count">0 चुने</span>
+        <button id="clearSelection" type="button" class="quiet-button">चयन हटाएँ</button>
+      </div>
+      <label class="message-label" for="outreachMessage">संदेश</label>
+      <textarea id="outreachMessage" rows="3" placeholder="यहाँ संदेश लिखें…"></textarea>
+      <div class="outreach-actions">
+        <button id="startWhatsapp" type="button">WhatsApp शुरू करें</button>
+        <button id="startSms" type="button">SMS शुरू करें</button>
+        <button id="startCall" type="button">कॉल शुरू करें</button>
+        <button id="outreachNext" type="button" hidden></button>
+      </div>
+      <p id="outreachStatus" class="outreach-status" aria-live="polite">संदेश/कॉल हर नंबर पर अलग से खुलेगा; भेजने या कॉल करने की पुष्टि आप करेंगे।</p>
+    </details>
+  </nav>
+</div>
+
+<div id="bdayModal" class="modal" hidden>
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="bdayTitle">
+    <div class="modal-head">
+      <h2 id="bdayTitle">🎂 जन्मदिन</h2>
+      <button id="bdayClose" type="button" class="modal-x" aria-label="बंद करें">✕</button>
+    </div>
+    <div class="modal-filters">
+      <label>पीछे <select id="bdayBack"><option value="3">3 दिन</option><option value="7" selected>7 दिन</option><option value="15">15 दिन</option><option value="30">30 दिन</option></select></label>
+      <label>आगे <select id="bdayAhead"><option value="7">7 दिन</option><option value="15">15 दिन</option><option value="30" selected>30 दिन</option><option value="60">60 दिन</option><option value="365">पूरा साल</option></select></label>
+    </div>
+    <div id="bdayList" class="bd-list"></div>
+  </div>
+</div>
 
 <div id="printArea"></div>
 

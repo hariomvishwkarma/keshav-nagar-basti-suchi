@@ -102,6 +102,54 @@ dd{margin:0;word-break:break-word}
 #blocks{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:12px}
 #blocks .block{min-height:62px;padding:8px 6px;font-size:.95rem;border-radius:12px}
 
-section#outreach {
-    display: none;
-}
+
+/* संदेश वाला हिस्सा: accordion (डिफ़ॉल्ट बंद) */
+.outreach>summary{cursor:pointer;font-weight:700;color:var(--green);list-style:none;display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.outreach>summary::-webkit-details-marker{display:none}
+.outreach>summary::before{content:"▸";transition:transform .15s}
+.outreach[open]>summary::before{transform:rotate(90deg)}
+.outreach[open]>summary{margin-bottom:10px}
+
+/* जन्मदिन */
+.toprow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.bday-btn{flex:none;background:#fff;color:var(--saffron-d);border:0;border-radius:20px;padding:7px 12px;font:inherit;font-weight:700;font-size:.9rem;cursor:pointer}
+.bday-bar{margin:0 0 12px;padding:10px 12px;background:#fff;border:1px solid var(--line);border-left:4px solid var(--saffron);border-radius:10px}
+.bday-bar[hidden]{display:none}
+.bd-line{padding:2px 0;font-size:.95rem}
+.bd-line.now{color:var(--saffron-d);font-size:1.02rem}
+.bd-line small{color:var(--muted)}
+.bd-more{margin-top:4px;padding:0;border:0;background:none;color:var(--saffron-d);font:inherit;font-weight:700;font-size:.85rem;cursor:pointer}
+.modal{position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.5);display:flex;align-items:flex-start;justify-content:center;padding:4vh 12px;overflow:auto}
+.modal[hidden]{display:none}
+.modal-box{width:100%;max-width:560px;background:var(--cream);border-radius:14px;padding:14px 14px 18px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.modal-head{display:flex;align-items:center;justify-content:space-between}
+.modal-head h2{margin:0;font-size:1.2rem;color:var(--saffron-d)}
+.modal-x{border:0;background:#fff;border-radius:50%;width:34px;height:34px;font-size:1rem;cursor:pointer}
+.modal-filters{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0;font-size:.85rem;color:var(--muted)}
+.modal-filters select{font:inherit;padding:5px;border:1px solid var(--line);border-radius:8px;background:#fff}
+.bd-sec{margin:12px 0 6px;font-size:.95rem;color:var(--saffron-d)}
+.bd-row{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-bottom:6px}
+.bd-row.today{border-color:var(--saffron);background:#fff3e3}
+.bd-main{flex:1;min-width:0;display:flex;flex-direction:column}
+.bd-main small{color:var(--muted)}
+.bd-when{text-align:right;display:flex;flex-direction:column;font-size:.85rem}
+.bd-date{font-weight:700}
+.bd-rel{color:var(--muted)}
+.bd-call{flex:none;background:var(--green);color:#fff;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center}
+body.modal-open{overflow:hidden}
+@media print{.modal,.bday-bar,.bday-btn{display:none!important}}
+
+
+/* हैमबर्गर मेनू */
+.menu-btn{position:relative;flex:none;background:#fff;color:var(--saffron-d);border:0;border-radius:10px;width:42px;height:42px;font-size:1.5rem;line-height:1;cursor:pointer}
+.menu-badge{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:var(--green);color:#fff;font-size:.72rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.menu-badge[hidden]{display:none}
+.drawer{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.5);display:flex;justify-content:flex-end}
+.drawer[hidden]{display:none}
+.drawer-panel{width:min(380px,92vw);height:100%;overflow:auto;background:var(--cream);padding:14px;display:flex;flex-direction:column;gap:10px;box-shadow:-6px 0 24px rgba(0,0,0,.3)}
+.drawer-head{display:flex;align-items:center;justify-content:space-between;font-size:1.15rem;color:var(--saffron-d)}
+.menu-item{display:block;width:100%;text-align:left;background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font:inherit;font-weight:700;cursor:pointer}
+.menu-item:hover{border-color:var(--saffron)}
+.drawer .outreach{margin:0}
+.drawer .outreach-actions button{flex:1 1 auto}
+@media print{.drawer,.menu-btn{display:none!important}}

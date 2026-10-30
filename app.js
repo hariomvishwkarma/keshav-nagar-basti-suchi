@@ -334,7 +334,8 @@ function updateOutreach() {
   const selected = DATA.filter(p => p.phone && SELECTED.has(personKey(p)));
   const visible = VIEW.people.filter(p => p.phone);
   const visibleSelected = visible.filter(p => SELECTED.has(personKey(p))).length;
-  $('selectedCount').textContent = `${selected.length} चुने`;
+  $('selectedCount').textContent = $('selectedBadge').textContent = `${selected.length} चुने`;
+  $('menuBadge').textContent = selected.length; $('menuBadge').hidden = !selected.length;
   $('selectVisible').checked = visible.length > 0 && visibleSelected === visible.length;
   $('selectVisible').indeterminate = visibleSelected > 0 && visibleSelected < visible.length;
   $('selectVisible').disabled = !visible.length;
@@ -376,6 +377,7 @@ function render(keepScroll) {
   $('outreach').hidden = !people.length;
   VIEW = { people, heading, file: file.replace(/[\s\\/:*?"<>|]+/g, '_') };
   updateOutreach();
+  renderBdayBar();
   if (!q && !keepScroll) window.scrollTo(0, 0);
 }
 
@@ -507,6 +509,105 @@ $('startWhatsapp').addEventListener('click', () => launchOutreach('whatsapp'));
 $('startSms').addEventListener('click', () => launchOutreach('sms'));
 $('startCall').addEventListener('click', () => launchOutreach('call'));
 $('outreachNext').addEventListener('click', openNextOutreach);
+/* ---------- जन्मदिन: आज / कल की पट्टी + पॉपअप (आगे-पीछे की सूची) ---------- */
+const MONTHS = ['जनवरी', 'फ़रवरी', 'मार्च', 'अप्रैल', 'मई', 'जून', 'जुलाई', 'अगस्त', 'सितंबर', 'अक्टूबर', 'नवंबर', 'दिसंबर'];
+const DAY_MS = 86400000;
+
+// dd/mm/yyyy → {d, mo, y}. 01/01 को छोड़ते हैं: शीट में अक्सर सही तारीख़ न पता हो तो वही भरी जाती है।
+function parseDob(s) {
+  const m = String(s || '').match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!m) return null;
+  const d = +m[1], mo = +m[2], y = +m[3];
+  if (mo < 1 || mo > 12 || d < 1 || d > 31 || (d === 1 && mo === 1)) return null;
+  return { d, mo, y };
+}
+const occurrence = (d, mo, year) => {
+  const leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+  return new Date(year, mo - 1, mo === 2 && d === 29 && !leap ? 28 : d);
+};
+
+// हर व्यक्ति की सबसे पास की अगली और पिछली जन्मतिथि (दिनों में)
+function birthdayList() {
+  const n = new Date(), today = new Date(n.getFullYear(), n.getMonth(), n.getDate()), out = [];
+  for (const p of DATA) {
+    const b = parseDob(p.dob);
+    if (!b) continue;
+    const c = [-1, 0, 1].map(k => occurrence(b.d, b.mo, today.getFullYear() + k));
+    const next = c.find(x => x >= today), last = [...c].reverse().find(x => x < today);
+    const age = dt => (b.y >= 1920 && dt.getFullYear() > b.y ? dt.getFullYear() - b.y : 0);
+    out.push({
+      p, b, next, last, ageNext: age(next), ageLast: age(last),
+      dNext: Math.round((next - today) / DAY_MS), dLast: Math.round((today - last) / DAY_MS),
+    });
+  }
+  return out;
+}
+
+const bdName = x => esc(x.p.naam);
+const bdDate = dt => `${dt.getDate()} ${MONTHS[dt.getMonth()]}`;
+const bdAge = a => (a ? `${a} वर्ष` : '');
+const relNext = n => (n === 0 ? 'आज' : n === 1 ? 'कल' : n === 2 ? 'परसों' : `${n} दिन बाद`);
+const relLast = n => (n === 1 ? 'कल था' : n === 2 ? 'परसों था' : `${n} दिन पहले`);
+
+function bdRow(x, dt, age, rel, today) {
+  const call = x.p.phone ? `<a class="bd-call" href="tel:+91${x.p.phone}" aria-label="कॉल करें">📞</a>` : '';
+  return `<div class="bd-row${today ? ' today' : ''}">
+    <div class="bd-main"><b>${bdName(x)}</b><small>${esc(x.p.mohalla)} · ${esc(galiLabel(x.p.gali))}</small></div>
+    <div class="bd-when"><span class="bd-date">${bdDate(dt)}</span><span class="bd-rel">${rel}${age ? ' · ' + bdAge(age) : ''}</span></div>${call}</div>`;
+}
+
+// होम पर: आज और कल किसका है
+function renderBdayBar() {
+  const bar = $('bdayBar');
+  const home = !location.hash.replace(/^#\/?/, '') && !$('search').value.trim();
+  const list = birthdayList();
+  if (!home || !list.length) { bar.hidden = true; return; }
+  const names = arr => arr.map(x => `${bdName(x)}${x.ageNext ? ` <small>(${x.ageNext} वर्ष)</small>` : ''}`).join(', ');
+  const today = list.filter(x => x.dNext === 0), tom = list.filter(x => x.dNext === 1);
+  let html = '';
+  if (today.length) html += `<div class="bd-line now">🎉 <b>आज जन्मदिन:</b> ${names(today)}</div>`;
+  if (tom.length) html += `<div class="bd-line">🎂 <b>कल:</b> ${names(tom)}</div>`;
+  if (!today.length && !tom.length) {
+    const nx = list.filter(x => x.dNext > 1).sort((a, b) => a.dNext - b.dNext);
+    if (nx.length) {
+      const first = nx.filter(x => x.dNext === nx[0].dNext);
+      html += `<div class="bd-line">आज/कल कोई जन्मदिन नहीं · अगला (${relNext(nx[0].dNext)}, ${bdDate(nx[0].next)}): ${names(first)}</div>`;
+    }
+  }
+  bar.innerHTML = `${html}<button type="button" class="bd-more" id="bdayMore">पूरी जन्मदिन सूची देखें ›</button>`;
+  bar.hidden = false;
+}
+
+function renderBdayModal() {
+  const back = +$('bdayBack').value, ahead = +$('bdayAhead').value, list = birthdayList();
+  const sec = (title, rows) => (rows ? `<h3 class="bd-sec">${title}</h3>${rows}` : '');
+  const today = list.filter(x => x.dNext === 0).map(x => bdRow(x, x.next, x.ageNext, 'आज', true)).join('');
+  const up = list.filter(x => x.dNext >= 1 && x.dNext <= ahead).sort((a, b) => a.dNext - b.dNext)
+    .map(x => bdRow(x, x.next, x.ageNext, relNext(x.dNext))).join('');
+  const past = list.filter(x => x.dLast >= 1 && x.dLast <= back).sort((a, b) => a.dLast - b.dLast)
+    .map(x => bdRow(x, x.last, x.ageLast, relLast(x.dLast))).join('');
+  $('bdayList').innerHTML = sec('🎉 आज', today) + sec('⏭️ आने वाले जन्मदिन', up) + sec('⏮️ बीते जन्मदिन', past)
+    || '<div class="empty-msg">इस अवधि में कोई जन्मदिन नहीं</div>';
+}
+
+function openBday() { renderBdayModal(); $('bdayModal').hidden = false; document.body.classList.add('modal-open'); }
+function closeBday() { $('bdayModal').hidden = true; document.body.classList.remove('modal-open'); }
+
+/* ---------- हैमबर्गर मेनू ---------- */
+function openMenu() { $('menu').hidden = false; $('menuBtn').setAttribute('aria-expanded', 'true'); document.body.classList.add('modal-open'); }
+function closeMenu() { $('menu').hidden = true; $('menuBtn').setAttribute('aria-expanded', 'false'); if ($('bdayModal').hidden) document.body.classList.remove('modal-open'); }
+$('menuBtn').addEventListener('click', openMenu);
+$('menuClose').addEventListener('click', closeMenu);
+$('menu').addEventListener('click', e => { if (e.target.id === 'menu') closeMenu(); });
+$('bdayBtn').addEventListener('click', () => { closeMenu(); openBday(); });
+$('bdayBar').addEventListener('click', e => { if (e.target.id === 'bdayMore') openBday(); });
+$('bdayClose').addEventListener('click', closeBday);
+$('bdayModal').addEventListener('click', e => { if (e.target.id === 'bdayModal') closeBday(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeBday(); closeMenu(); } });
+$('bdayBack').addEventListener('change', renderBdayModal);
+$('bdayAhead').addEventListener('change', renderBdayModal);
+setInterval(() => { renderBdayBar(); if (!$('bdayModal').hidden) renderBdayModal(); }, 10 * 60 * 1000);   // रात 12 बजे के बाद तारीख़ बदल जाए
+
 render();
 loadSheet();
 setInterval(loadSheet, REFRESH_MS);
