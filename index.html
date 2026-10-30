@@ -4,7 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>कुशवाह नगर बस्ती – स्वयंसेवक सूची</title>
-<link rel="stylesheet" href="style.css">
+<meta http-equiv="Cache-Control" content="no-cache">
+<script>
+  // purane cache ki dikkat na aaye: har 10 minute me file ka naya version mangta hai (haath se version badalna nahi padta)
+  window.V = '?v=' + Math.floor(Date.now() / 600000);
+  document.write('<link rel="stylesheet" href="style.css' + V + '">');
+</script>
 <style id="pageStyle">@page{size:A4 landscape;margin:10mm}</style>
 </head>
 <body>
@@ -87,8 +92,8 @@
 <div id="printArea"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="data.js"></script>
-<script src="corrections.js"></script>
-<script src="app.js"></script>
+<script>
+  ['data.js', 'corrections.js', 'app.js'].forEach(function (f) { document.write('<script src="' + f + V + '"><\/script>'); });
+</script>
 </body>
 </html>
