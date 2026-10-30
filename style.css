@@ -153,3 +153,72 @@ body.modal-open{overflow:hidden}
 .drawer .outreach{margin:0}
 .drawer .outreach-actions button{flex:1 1 auto}
 @media print{.drawer,.menu-btn{display:none!important}}
+
+
+/* ---------- हल्का एनिमेशन और शैडो (प्रोफ़ेशनल लुक) ---------- */
+:root{--shadow-s:0 1px 3px rgba(120,60,10,.10),0 1px 2px rgba(120,60,10,.06);--shadow-m:0 6px 16px rgba(184,77,5,.16);--ease:cubic-bezier(.2,.7,.2,1)}
+html{scroll-behavior:smooth}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideIn{from{transform:translateX(100%)}to{transform:none}}
+@keyframes popIn{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(232,101,12,.35)}50%{box-shadow:0 0 0 7px rgba(232,101,12,0)}}
+
+.top{background:linear-gradient(120deg,#f27a1a,var(--saffron) 45%,var(--saffron-d));box-shadow:0 3px 14px rgba(120,50,0,.35)}
+.brand .flag{display:inline-block;transform-origin:20% 90%;animation:wave 3.2s ease-in-out infinite}
+@keyframes wave{0%,100%{transform:rotate(0)}50%{transform:rotate(-8deg)}}
+#search{box-shadow:inset 0 1px 3px rgba(0,0,0,.15);transition:box-shadow .2s,transform .2s}
+#search:focus{outline:0;box-shadow:0 0 0 3px rgba(255,255,255,.55),0 4px 12px rgba(0,0,0,.2)}
+
+/* मोहल्ला / गली के ब्लॉक */
+.block{box-shadow:var(--shadow-s);transition:transform .2s var(--ease),box-shadow .2s var(--ease),border-color .2s,background .2s;animation:fadeUp .4s var(--ease) both}
+.block:hover{transform:translateY(-3px);box-shadow:var(--shadow-m)}
+.block:active{transform:translateY(0) scale(.97)}
+.block.active{animation:fadeUp .4s var(--ease) both,pulse 2.2s ease-out 1}
+.blocks .block:nth-child(2){animation-delay:.04s}.blocks .block:nth-child(3){animation-delay:.08s}.blocks .block:nth-child(4){animation-delay:.12s}
+.blocks .block:nth-child(5){animation-delay:.16s}.blocks .block:nth-child(6){animation-delay:.2s}.blocks .block:nth-child(7){animation-delay:.24s}
+
+/* कार्ड */
+.card{box-shadow:var(--shadow-s);transition:transform .2s var(--ease),box-shadow .2s var(--ease),border-color .2s;animation:fadeUp .45s var(--ease) both}
+.card:hover{transform:translateY(-3px);box-shadow:var(--shadow-m);border-color:#f1b98a}
+.list .card:nth-child(2){animation-delay:.03s}.list .card:nth-child(3){animation-delay:.06s}.list .card:nth-child(4){animation-delay:.09s}
+.list .card:nth-child(5){animation-delay:.12s}.list .card:nth-child(6){animation-delay:.15s}.list .card:nth-child(n+7){animation-delay:.18s}
+.grp.m{box-shadow:0 4px 12px rgba(184,77,5,.28)}
+.call{box-shadow:0 2px 6px rgba(31,143,78,.35);transition:transform .15s,box-shadow .15s,filter .15s}
+.call:hover{filter:brightness(1.08);box-shadow:0 5px 12px rgba(31,143,78,.4)}
+.call:active{transform:scale(.97)}
+.call.none{box-shadow:none}
+
+/* बटन */
+.tools button,.outreach button,.bday-btn,.menu-item,.modal-x,.menu-btn{transition:transform .15s var(--ease),box-shadow .2s,background .2s,border-color .2s,filter .2s}
+.tools button,.outreach button{box-shadow:0 2px 6px rgba(0,0,0,.18)}
+.tools button:hover:not(:disabled),.outreach button:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 5px 12px rgba(0,0,0,.22);filter:brightness(1.06)}
+.tools button:active,.outreach button:active{transform:scale(.96)}
+.menu-btn{box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.menu-btn:hover{transform:scale(1.06)}
+.menu-btn:active{transform:scale(.94)}
+.menu-item{box-shadow:var(--shadow-s)}
+.menu-item:hover{transform:translateX(3px);box-shadow:var(--shadow-m)}
+.menu-badge{animation:popIn .25s var(--ease)}
+
+/* जन्मदिन पट्टी, मेनू, पॉपअप */
+.bday-bar{box-shadow:var(--shadow-s);animation:fadeUp .4s var(--ease) both}
+.bd-line.now{animation:fadeIn .6s ease both}
+.drawer{animation:fadeIn .2s ease;backdrop-filter:blur(2px)}
+.drawer-panel{animation:slideIn .28s var(--ease)}
+.modal{animation:fadeIn .2s ease;backdrop-filter:blur(2px)}
+.modal-box{animation:popIn .3s var(--ease)}
+.bd-row{box-shadow:var(--shadow-s);transition:transform .15s var(--ease),box-shadow .2s;animation:fadeUp .35s var(--ease) both}
+.bd-row:hover{transform:translateX(2px);box-shadow:var(--shadow-m)}
+.bd-row.today{animation:fadeUp .35s var(--ease) both,pulse 2.4s ease-out 2}
+
+/* संदेश वाला accordion */
+.outreach{box-shadow:var(--shadow-s)}
+.outreach[open]>.outreach-head,.outreach[open]>textarea,.outreach[open]>.outreach-actions{animation:fadeUp .25s var(--ease) both}
+
+/* कम एनिमेशन पसंद करने वालों के लिए */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+@media print{*{animation:none!important;box-shadow:none!important}}
+.quiet .card,.quiet .block,.quiet .bd-row,.quiet .bday-bar{animation:none!important}

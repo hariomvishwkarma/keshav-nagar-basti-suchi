@@ -345,6 +345,7 @@ function updateOutreach() {
 function render(keepScroll) {
   const parts = decodeURIComponent(location.hash.replace(/^#\/?/, '')).split('/').filter(Boolean);
   const q = $('search').value.trim().toLowerCase();
+  document.body.classList.toggle('quiet', keepScroll === true || !!q);   // खोज/ऑटो-रिफ़्रेश में एनिमेशन दोबारा न चले
   const blocks = $('blocks'), galiBlocks = $('galiBlocks'), title = $('listTitle'), crumbs = $('crumbs');
   let people = sortPeople(DATA), heading = '', showM = false, showG = false, file = 'kul-suchi';
 
